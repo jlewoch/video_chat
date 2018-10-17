@@ -4,9 +4,9 @@ import io from 'socket.io-client'
 import {
   toggleVideo,
   setLocalStream,
-  setRemoteStream
 } from '../../store/media/actions'
 import Test from './Test'
+
 let connections = {}
 class Room extends Component {
   constructor (props) {
@@ -102,7 +102,6 @@ class Room extends Component {
     })
     this.socket.on('userleft', leftId=>{
       const members = this.state.members.filter(member=> member.key !== leftId)
-      console.log(members)
       this.setState({members});
     })
   }
@@ -118,7 +117,7 @@ class Room extends Component {
 
   render () {
     return (
-      <div style={{ display: 'flex' }}>
+      <div className='room'>
         <video
           style={{ height: '200px', width: '200px' }}
           ref={el => (this.local = el)}
@@ -127,7 +126,7 @@ class Room extends Component {
         <div style={{ display: 'flex', flexWrap: 'wrap' }}>
           {this.state.members.map(item => item)}
         </div>
-        <button onClick={this.call}>call</button>
+
         <button onClick={this.toggle}>toggle</button>
       </div>
     )
@@ -135,13 +134,11 @@ class Room extends Component {
 }
 const mapStateToProps = state => ({
   showVideo: state.media.showVideo,
-  remoteStream: state.media.remoteStream,
   localStream: state.media.localStream
 })
 const mapDispatchToProps = dispatch => ({
   toggleVideo: () => dispatch(toggleVideo()),
   setLocalStream: e => dispatch(setLocalStream(e)),
-  setRemoteStream: e => dispatch(setRemoteStream(e))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Room)

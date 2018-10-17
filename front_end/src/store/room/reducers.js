@@ -7,7 +7,7 @@ const initialState = {
 }
 
 const rooms = createReducer({
-    [types.ADD_NEW_MEMBER]: (state, payload) => ({...state, [payload.id]: payload.remoteStream})
+   
 }, initialState)
 
 export default rooms
