@@ -1,2 +1,5 @@
-export const USER_JOINED = 'USER_JOINED';
-export const USER_LEFT = 'USER_LEFT';
+export const USER_JOINED = 'USER_JOINED'
+export const USER_LEFT = 'USER_LEFT'
+export const TOGGLE_CHAT = 'TOGGLE_CHAT'
+export const ADD_MESSAGE = 'ADD_MESSAGE'
+export const SEND_MESSAGE = 'SEND_MESSAGE'

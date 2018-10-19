@@ -1,0 +1,29 @@
+#toggle{
+    width: 50px;
+    height: 25px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    transition-delay: .2s;
+    margin:10px;
+}
+#toggle-btn{
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: inset 0px 0px 3px 0px black;
+    transition: .2s ease all;
+}
+.enabled-bg{
+    background:  #0471a3;
+}
+.disabled-bg{
+    background: lightgray;
+}
+.enabled-btn{
+    transform: translateX(25px);
+}
+.disabled-btn{
+    transform: translateX(0);
+}

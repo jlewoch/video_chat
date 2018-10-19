@@ -1,0 +1,22 @@
+.controls{
+    display: flex;
+    justify-content: center;
+    min-height: 15%;
+    background: white;
+}
+
+.control-section{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+.enabled{
+    color: blue;
+}
+.disabled{
+    color:gray;
+}
+.control-section:hover{
+    cursor: pointer;
+}

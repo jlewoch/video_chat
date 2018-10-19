@@ -1,0 +1,14 @@
+
+#panel{
+display: flex;
+ flex-direction: column;
+ background: white;
+ transition: 1s all;
+}
+
+#panel.ropened{
+   width: 30%;
+}
+#panel.rclosed{
+width:0px;
+}

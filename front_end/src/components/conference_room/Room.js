@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import io from 'socket.io-client'
-import {
-  toggleVideo,
-  setLocalStream,
-} from '../../store/media/actions'
-import Test from './Test'
-
+import RemoteVideo from './remote_video/RemoteVideo'
+import { toggleVideo, setLocalStream } from '../../store/media/actions'
+import './room.css'
+import { BottomControls } from './controls'
+import { ChatPanel } from './chat'
+import { addMessage } from '../../store/room/actions'
 let connections = {}
 class Room extends Component {
   constructor (props) {
@@ -16,12 +16,6 @@ class Room extends Component {
     }
     this.socket = io.connect('http://localhost:9000')
   }
-
-  toggle = () => {
-    this.props.localStream.getVideoTracks()[0].enabled = !this.props.showVideo
-    this.props.toggleVideo()
-  }
-
   setupPc = id => {
     connections[id] = {}
     connections[id].name = id
@@ -41,7 +35,10 @@ class Room extends Component {
     }
     connections[id].pc.onaddstream = e => {
       this.setState({
-        members: [...this.state.members, <Test key={id} stream={e.stream} />]
+        members: [
+          ...this.state.members,
+          <RemoteVideo key={id} stream={e.stream} />
+        ]
       })
     }
   }
@@ -100,10 +97,14 @@ class Room extends Component {
         )
         .catch(console.log)
     })
-    this.socket.on('userleft', leftId=>{
-      const members = this.state.members.filter(member=> member.key !== leftId)
-      this.setState({members});
+    this.socket.on('userleft', leftId => {
+      const members = this.state.members.filter(member => member.key !== leftId)
+      this.setState({ members })
     })
+
+    this.socket.on('message', (message, id) =>
+      this.props.addMessage({ message, id })
+    )
   }
   start = () => {
     this.setupLocalStream()
@@ -117,17 +118,21 @@ class Room extends Component {
 
   render () {
     return (
-      <div className='room'>
-        <video
-          style={{ height: '200px', width: '200px' }}
-          ref={el => (this.local = el)}
-          autoPlay
-        />
-        <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-          {this.state.members.map(item => item)}
+      <div className='conference-room'>
+        <div className='video-section'>
+          <div id='remote-videos'>
+            {this.state.members.map(item => item)}
+            <video
+              className='local-video'
+              ref={el => (this.local = el)}
+              autoPlay
+            />
+          </div>
+
+          <ChatPanel />
         </div>
 
-        <button onClick={this.toggle}>toggle</button>
+        <BottomControls />
       </div>
     )
   }
@@ -139,6 +144,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   toggleVideo: () => dispatch(toggleVideo()),
   setLocalStream: e => dispatch(setLocalStream(e)),
+  addMessage: e => dispatch(addMessage())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Room)
