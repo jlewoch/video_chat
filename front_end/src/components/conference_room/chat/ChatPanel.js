@@ -1,7 +1,14 @@
 import React from 'react'
 import RightSidePanel
   from '../../../shared_components/side_panel/RightSidePanel'
-const ChatPanel = ({ messages, chatEnabled }) => {
+const ChatPanel = ({
+  messages,
+  chatEnabled,
+  sendMessage,
+  messageInput,
+  inputChange,
+  socket
+}) => {
   function timeSpan (time) {
     const date = Date.now()
     const timelaps = date - time
@@ -31,43 +38,61 @@ const ChatPanel = ({ messages, chatEnabled }) => {
       return value + ' ' + intervalname + ' ago'
     }
   }
-
   return (
     <RightSidePanel state={chatEnabled}>
       <div className='chat'>
         <div className='chat-top'>
-          {messages.map(message => (
-            <div
-              id='chat-message-container'
-              className={message.type === 'received' && 'container-received'}
-            >
-              <div className='chat-message-top'>
-                <img
-                  className='chat-img'
-                  src={require('./1.jpg')}
-                  alt='user image'
-                />
-              </div>
-              <div className='chat-message-bottom'>
+          {messages.map((message, index) => (
+            <div key={index}>
+              <div
+                id='chat-message-container'
+                className={
+                  message.type === 'received' ? 'container-received' : ''
+                }
+              >
+                <div className='chat-message-top'>
+                  <img
+                    className='chat-img'
+                    src={require('./1.jpg')}
+                    alt='user image'
+                  />
+                </div>
+                <div className='chat-message-bottom'>
 
-                <p
-                  className={`chat-message ${message.type === 'sent' ? 'sent' : 'received'}`}
-                >
-                  <p className='chat-message-name'>{message.name}</p>
-                  {message.message}
-                </p>
-                <p
-                  className={`time-stamp ${message.type === 'received' && 'time-stamp-received'}`}
-                >
-                  {timeSpan(message.time)}
-                </p>
+                  <div
+                    className={`chat-message ${message.type === 'sent' ? 'sent' : 'received'}`}
+                  >
+                    <p className='chat-message-name'>{message.name}</p>
+                    {message.message}
+                  </div>
+                  <p
+                    className={`time-stamp ${message.type === 'received' ? 'time-stamp-received' : ''}`}
+                  >
+                    {timeSpan(message.time)}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
         <div className='chat-controls'>
-          <input className='chat-input' type='text' />
-          <button className='chat-btn'>Send</button>
+          <input
+            onChange={e => inputChange(e.target.value)}
+            value={messageInput}
+            className='chat-input'
+            type='text'
+          />
+          <button
+            onClick={() =>
+              sendMessage({
+                socket: socket,
+                message: messageInput,
+                name: 'jake'
+              })}
+            className='chat-btn'
+          >
+            Send
+          </button>
         </div>
       </div>
     </RightSidePanel>

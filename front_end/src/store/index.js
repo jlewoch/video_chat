@@ -1,5 +1,10 @@
-import { createStore } from 'redux';
-import reducers from './roots';
+import { createStore, applyMiddleware } from 'redux'
+import createSagaMiddleware from 'redux-saga'
+import reducers from './roots'
+import { roomSagas } from './room/sagas'
 
-const store = createStore(reducers);
-export default store;
+const saga = createSagaMiddleware()
+
+const store = createStore(reducers, applyMiddleware(saga))
+saga.run(roomSagas)
+export default store

@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
-import Room from './components/conference_room/Room'
-
+import Complete from './components/conference_room/Complete'
 class App extends Component {
   render () {
     return (
       <div className='App'>
-        <Room />
+        <Complete />
       </div>
     )
   }

@@ -19,7 +19,7 @@ const BottomControls = ({
 
       </div>
       <div
-        onClick={toggleChat}
+      onClick={toggleChat}
         className={`control-section ${chatEnabled ? 'enabled' : 'disabled'}`}
       >
         <h4>Chat</h4>

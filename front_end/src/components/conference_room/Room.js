@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
+
 import { connect } from 'react-redux'
-import io from 'socket.io-client'
 import RemoteVideo from './remote_video/RemoteVideo'
-import { toggleVideo, setLocalStream } from '../../store/media/actions'
 import './room.css'
 import { BottomControls } from './controls'
 import { ChatPanel } from './chat'
-import { addMessage } from '../../store/room/actions'
+import { setLocalStream, toggleVideo } from '../../store/media/actions'
+import { addMessage, addUser } from '../../store/room/actions'
 let connections = {}
 class Room extends Component {
   constructor (props) {
@@ -14,12 +14,20 @@ class Room extends Component {
     this.state = {
       members: []
     }
-    this.socket = io.connect('http://localhost:9000')
   }
   setupPc = id => {
     connections[id] = {}
     connections[id].name = id
     connections[id].pc = new RTCPeerConnection()
+    connections[id].dc = connections[id].pc.createDataChannel(this.props.room)
+    connections[id].dc.onmessage = e => {
+      const message = JSON.parse(e.data)
+      console.log('message on datastream', message)
+    }
+    connections[id].dc.onclose = () => {
+      connections[id].remoteStream.getVideoTracks()[0].stop()
+      console.log('The Data Channel is Closed')
+    }
     this.props.localStream
       .getTracks()
       .forEach(track =>
@@ -27,42 +35,62 @@ class Room extends Component {
       )
     connections[id].pc.onicecandidate = e => {
       if (e.candidate) {
-        this.socket.emit('candidate', {
+        this.props.socket.emit('candidate', {
           mlineindex: e.candidate.sdpMLineIndex,
           candidate: e.candidate.candidate
         })
       }
     }
     connections[id].pc.onaddstream = e => {
+      connections[id].remoteStream = e.stream
       this.setState({
         members: [
           ...this.state.members,
-          <RemoteVideo key={id} stream={e.stream} />
+          <RemoteVideo
+            key={id}
+            full={Object.keys(connections).length === 1}
+            stream={connections[id].remoteStream}
+          />
         ]
       })
     }
-  }
-  setupLocalStream = () => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        this.props.setLocalStream(stream)
-        this.local.srcObject = this.props.localStream
-      })
-      .catch(console.log)
+    connections[id].pc.ondatachannel = e => {
+      connections[id].dc = e.channel
+
+      connections[id].dc.onmessage = e => {
+        var msg = JSON.parse(e.data)
+        console.log('received message over data channel:' + msg)
+      }
+
+      connections[id].dc.onclose = () => {
+        connections[id].remoteStream.getVideoTracks()[0].stop()
+        console.log('The Data Channel is Closed')
+      }
+      connections[id].dc.send(
+        JSON.stringify({
+          peerMediaStream: {
+            video: this.props.localStream.getVideoTracks()[0].enabled
+          }
+        })
+      )
+    }
   }
 
   setupSockets = () => {
-    this.socket.on('offer', (offer, fromId) => {
-      this.setupPc(fromId)
-      console.log('offer recieved')
-      // set remote description and answer
+    this.props.socket.on('connect', () => {
+      this.props.getMedia.then(stream => {
+        this.props.setLocalStream(stream)
+        this.local.srcObject = this.props.localStream
+        this.props.socket.emit('joined', this.props.roomId)
+      })
+    })
+    this.props.socket.on('offer', (offer, fromId) => {
       connections[fromId].pc.setRemoteDescription(offer)
       connections[fromId].pc
         .createAnswer()
         .then(data => connections[fromId].pc.setLocalDescription(data))
         .then(data =>
-          this.socket.emit(
+          this.props.socket.emit(
             'answer',
             connections[fromId].pc.localDescription,
             fromId
@@ -70,11 +98,11 @@ class Room extends Component {
         )
         .catch(console.log)
     })
-    this.socket.on('answer', (answer, fromId) => {
+    this.props.socket.on('answer', (answer, fromId) => {
       console.log('answer recieved')
       connections[fromId].pc.setRemoteDescription(answer)
     })
-    this.socket.on('candidate', (candidate, fromId) => {
+    this.props.socket.on('candidate', (candidate, fromId) => {
       connections[fromId].pc.addIceCandidate(
         new RTCIceCandidate({
           sdpMLineIndex: candidate.mlineindex,
@@ -82,38 +110,46 @@ class Room extends Component {
         })
       )
     })
-
-    this.socket.on('joined', joinedId => {
-      this.setupPc(joinedId)
-      connections[joinedId].pc
-        .createOffer()
-        .then(data => connections[joinedId].pc.setLocalDescription(data))
-        .then(data =>
-          this.socket.emit(
-            'offer',
-            connections[joinedId].pc.localDescription,
-            joinedId
-          )
-        )
-        .catch(console.log)
+    this.props.socket.on('users', users => {
+      users.forEach(user => {
+        this.setupPc(user.id)
+        this.props.addUser(user)
+      })
+      this.props.socket.emit('ready')
     })
-    this.socket.on('userleft', leftId => {
+
+    this.props.socket.on('userleft', leftId => {
       const members = this.state.members.filter(member => member.key !== leftId)
       this.setState({ members })
     })
+    this.props.socket.on('joined', message => {
+      this.setupPc(message.id)
+      this.props.addUser(message)
+    })
+    this.props.socket.on('ready', message => {
+      this.sendOffer(message)
+    })
 
-    this.socket.on('message', (message, id) =>
-      this.props.addMessage({ message, id })
-    )
+    this.props.socket.on('message', (message, id) => {
+      console.log(message, 'got message')
+      this.props.addMessage({
+        message: message.message,
+        id,
+        name: message.name
+      })
+    })
   }
-  start = () => {
-    this.setupLocalStream()
-    this.setupSockets()
+  sendOffer = id => {
+    connections[id].pc
+      .createOffer()
+      .then(data => connections[id].pc.setLocalDescription(data))
+      .then(data =>
+        this.props.socket.emit('offer', connections[id].pc.localDescription, id)
+      )
+      .catch(console.log)
   }
-
   componentDidMount () {
-    this.start()
-    setTimeout(() => this.socket.emit('joined', this.socket.id), 1000)
+    this.setupSockets()
   }
 
   render () {
@@ -129,7 +165,7 @@ class Room extends Component {
             />
           </div>
 
-          <ChatPanel />
+          <ChatPanel socket={this.props.socket} />
         </div>
 
         <BottomControls />
@@ -138,13 +174,14 @@ class Room extends Component {
   }
 }
 const mapStateToProps = state => ({
+  roomId: state.room.roomId,
   showVideo: state.media.showVideo,
   localStream: state.media.localStream
 })
 const mapDispatchToProps = dispatch => ({
   toggleVideo: () => dispatch(toggleVideo()),
   setLocalStream: e => dispatch(setLocalStream(e)),
-  addMessage: e => dispatch(addMessage())
+  addUser: e => dispatch(addUser(e)),
+  addMessage: e => dispatch(addMessage(e))
 })
-
 export default connect(mapStateToProps, mapDispatchToProps)(Room)

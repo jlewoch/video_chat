@@ -1,21 +1,26 @@
-import { createReducer } from 'redux-act';
-import * as types from './actionTypes';
+import { createReducer } from 'redux-act'
+import * as types from './actionTypes'
 
 const initialState = {
-    showVideo: true,
-    localStream:{},
+  showVideo: true,
+  localStream: {}
 }
 
-const media = createReducer({
+const media = createReducer(
+  {
     [types.TOGGLE_VIDEO]: (state, payload) => {
-        state.localStream.getVideoTracks()[0].enabled = !state.showVideo
-        return {
-            ...state,
-            showVideo: !state.showVideo
-        }
+      state.localStream.getVideoTracks()[0].enabled = !state.showVideo
+      return {
+        ...state,
+        showVideo: !state.showVideo
+      }
     },
-    [types.SET_LOCAL_STREAM]: (state, payload) => ({...state, localStream: payload}),
-
-}, initialState)
+    [types.SET_LOCAL_STREAM]: (state, payload) => ({
+      ...state,
+      localStream: payload
+    })
+  },
+  initialState
+)
 
 export default media

@@ -1,14 +1,16 @@
 import { connect } from 'react-redux'
 import ChatPanelDisaply from './ChatPanel'
-import { sendMessage } from '../../../store/room/actions'
+import { sendMessage, inputChange } from '../../../store/room/actions'
 
 const mapStateToProps = state => ({
   messages: state.room.messages,
   users: state.room.users,
-  chatEnabled: state.room.chatEnabled
+  chatEnabled: state.room.chatEnabled,
+  messageInput: state.room.messageInput
 })
 const mapDispatchToProps = dispatch => ({
-  sendMessage: () => dispatch(sendMessage())
+  sendMessage: e => dispatch(sendMessage(e)),
+  inputChange: e => dispatch(inputChange(e))
 })
 
 export const ChatPanel = connect(mapStateToProps, mapDispatchToProps)(

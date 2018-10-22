@@ -7,9 +7,11 @@ class RemoteVideo extends Component {
 
   render () {
     return (
-      <div className={'video'}>
-        <video ref={el => (this.remote = el)} autoPlay />
-      </div>
+      <video
+        className={`video ${this.props.full ? 'fill-screen' : ''}`}
+        ref={el => (this.remote = el)}
+        autoPlay
+      />
     )
   }
 }
