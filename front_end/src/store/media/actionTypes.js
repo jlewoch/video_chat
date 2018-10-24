@@ -1,0 +1,4 @@
+export const TOGGLE_VIDEO = 'TOGGLE_VIDEO'
+export const TOGGLE_AUDIO = 'TOGGLE_AUDIO'
+
+export const SET_LOCAL_STREAM = 'SET_LOCAL_STREAM'

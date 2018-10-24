@@ -1,0 +1,7 @@
+export const ADD_USER = 'ADD_USER'
+export const USER_LEFT = 'USER_LEFT'
+export const TOGGLE_CHAT = 'TOGGLE_CHAT'
+export const ADD_MESSAGE = 'ADD_MESSAGE'
+export const SEND_MESSAGE = 'SEND_MESSAGE'
+export const INPUT_CHANGE = 'INPUT_CHANGE'
+export const SET_NAME = 'SET_NAME'
