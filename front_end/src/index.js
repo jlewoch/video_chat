@@ -2,13 +2,24 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import store from './store'
-import App from './App'
 import './index.css'
 import * as serviceWorker from './serviceWorker'
-
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import RoomSelection from './components/selection_page/RoomSelection'
+import ConferenceRoom from './components/conference_room/ConferenceRoom'
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <Router>
+      <Switch>
+        <Route path='/' exact component={RoomSelection} />
+        <Route
+          path='/conference-room/:RoomId'
+          exact
+          component={ConferenceRoom}
+        />
+
+      </Switch>
+    </Router>
   </Provider>,
   document.getElementById('root')
 )

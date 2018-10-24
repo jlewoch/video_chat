@@ -7,7 +7,7 @@ display: flex;
 }
 
 #panel.ropened{
-   width: 30%;
+   width: 500px;
 }
 #panel.rclosed{
 width:0px;

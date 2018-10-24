@@ -7,7 +7,8 @@ const ChatPanel = ({
   sendMessage,
   messageInput,
   inputChange,
-  socket
+  socket,
+  name
 }) => {
   function timeSpan (time) {
     const date = Date.now()
@@ -51,11 +52,7 @@ const ChatPanel = ({
                 }
               >
                 <div className='chat-message-top'>
-                  <img
-                    className='chat-img'
-                    src={require('./1.jpg')}
-                    alt='user image'
-                  />
+                  <div className='chat-img' />
                 </div>
                 <div className='chat-message-bottom'>
 
@@ -87,7 +84,7 @@ const ChatPanel = ({
               sendMessage({
                 socket: socket,
                 message: messageInput,
-                name: 'jake'
+                name
               })}
             className='chat-btn'
           >

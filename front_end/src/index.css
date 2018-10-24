@@ -7,6 +7,12 @@ body{
     margin: 0;
     overflow: hidden;
 }
+a{
+    text-decoration: none;
+}
+a.disabled{
+    pointer-events: none;
+}
 #root{
     height: 100%;
 }
@@ -19,13 +25,17 @@ body{
   font-size: 11px;
   opacity: 1;
 }
+.inputstyle:valid ~ .floating-label{
+    transform: translateY(-15px);
+    font-size: 11px;
+    opacity: 1;
+  }
 .inputstyle{
     width: 90%;
     outline: none;
     border:none;
     border-bottom: solid thin black;
 }
-
 
 .floating-label {
     color: blue;
@@ -50,4 +60,12 @@ font-size: 13px;
     height: 60px;
     width: 30%;
 
+}
+.btn-style{
+    cursor: pointer;
+    padding: 10px 50px;
+    background: green;
+    border-radius: 6px;
+    color: white;
+    width: 50px;
 }

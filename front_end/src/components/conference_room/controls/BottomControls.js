@@ -1,11 +1,12 @@
 import React from 'react'
 import Toggle from '../../../shared_components/toggle_button/Toggle'
-import './bottom_controls.css'
 const BottomControls = ({
   toggleVideo,
   showVideo,
   toggleChat,
-  chatEnabled
+  chatEnabled,
+  audioEnabled,
+  toggleAudio
 }) => {
   return (
     <div className='controls'>
@@ -15,11 +16,16 @@ const BottomControls = ({
 
       </div>
       <div className='control-section'>
-        <h4>Mute</h4>
+        <h4
+          onClick={toggleAudio}
+          className={`control-section ${audioEnabled ? 'enabled' : 'disabled'}`}
+        >
+          Mute
+        </h4>
 
       </div>
       <div
-      onClick={toggleChat}
+        onClick={toggleChat}
         className={`control-section ${chatEnabled ? 'enabled' : 'disabled'}`}
       >
         <h4>Chat</h4>

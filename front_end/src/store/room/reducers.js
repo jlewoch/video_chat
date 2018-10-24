@@ -1,8 +1,7 @@
 import { createReducer } from 'redux-act'
 import * as types from './actionTypes'
 const initialState = {
-  roomId: 'test',
-  roomAdmin: true,
+  name: '',
   users: {},
   messages: [],
   chatEnabled: true,
@@ -11,11 +10,6 @@ const initialState = {
 
 const rooms = createReducer(
   {
-    [types.TOGGLE_ROOM_ADMIN]: state => ({
-      ...state,
-      roomAdmin: !state.roomAdmin
-    }),
-    [types.SET_ROOM_ID]: (state, payload) => ({ ...state, roomId: payload }),
     [types.TOGGLE_CHAT]: state => ({
       ...state,
       chatEnabled: !state.chatEnabled
@@ -27,7 +21,11 @@ const rooms = createReducer(
         [payload.id]: { name: payload.name, id: payload.id }
       }
     }),
-    [types.USER_LEFT]: (state, payload) => {},
+    [types.SET_NAME]: (state, payload) => ({ ...state, name: payload }),
+    [types.USER_LEFT]: (state, payload) => {
+      state.users[payload].delete()
+      return { ...state }
+    },
     [types.ADD_MESSAGE]: (state, payload) => ({
       ...state,
       messages: [
