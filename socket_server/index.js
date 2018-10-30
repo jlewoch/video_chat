@@ -1,4 +1,13 @@
-const io = require('socket.io')(9000)
+const express = require('express')
+const app = express()
+const http = require('http')
+const compression = require('compression')
+const PORT = process.env.PORT || 3000
+app.use(compression())
+app.use(express.static('./build'))
+const server = http.createServer(app).listen(PORT)
+
+const io = require('socket.io')(server)
 io.sockets.on('connect', socket => {
   socket.on('joined', (room, name) => {
     socket.join(room)

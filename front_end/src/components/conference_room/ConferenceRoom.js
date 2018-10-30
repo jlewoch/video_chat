@@ -8,7 +8,7 @@ class ConferenceRoom extends Component {
     this.getMedia = navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .catch(console.log)
-    this.socket = io.connect('http://localhost:9000')
+    this.socket = io.connect()
   }
 
   render () {
